@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta name="google-site-verification" content="C3IiCOtFB4knv91qaA1GT_w3ugmgXnhsRS7mKNnyios" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Médias | Turma 3B</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --purple-custom: #5E35B1;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --info-color: #ff9800;
+            --border-radius: 16px;
+            --box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1f1c2c, #3a335c);
+            color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .calculator-container {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: var(--box-shadow);
+            padding: 25px 35px 35px 35px; /* Ajustando o padding superior */
+            text-align: center; /* Centralizando o conteúdo */
+        }
+        
+        /* NOVO CONTAINER PARA A LOGO */
+        .logo-container {
+            margin-bottom: 20px;
+        }
+
+        .logo-container img {
+            max-width: 150px; /* Define um tamanho máximo para a logo */
+            width: 100%;
+            height: auto; /* Mantém a proporção */
+            border-radius: 50%; /* Deixa a imagem redonda como no original */
+            background-color: var(--purple-custom); /* Cor de fundo caso a imagem tenha transparência */
+            padding: 5px; /* Pequena borda interna */
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+            text-align: left; /* Alinha o texto das labels à esquerda */
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            font-size: 1em;
+            color: #ffffff;
+            transition: all 0.3s ease;
+        }
+        
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .input-group input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--purple-custom);
+            box-shadow: 0 0 0 3px rgba(94, 53, 177, 0.5);
+        }
+
+        #results {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(10px);
+            display: none;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        
+        #results.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #results.success {
+            background-color: rgba(40, 167, 69, 0.8);
+            color: #ffffff;
+        }
+
+        #results.error {
+            background-color: rgba(220, 53, 69, 0.8);
+            color: #ffffff;
+        }
+
+        #results.info {
+            background-color: rgba(255, 152, 0, 0.8);
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator-container">
+        
+        <div class="logo-container">
+            <img src="https://i.imgur.com/JY9ngpA.jpeg" alt="Logo da Turma 3B">
+        </div>
+        
+        <form id="grade-form" onsubmit="return false;">
+            <div class="input-group">
+                <label for="trim1">Nota do 1º Trimestre</label>
+                <input type="number" id="trim1" placeholder="Digite a nota..." step="0.1" min="0" max="10">
+            </div>
+            <div class="input-group">
+                <label for="trim2">Nota do 2º Trimestre</label>
+                <input type="number" id="trim2" placeholder="Digite a nota..." step="0.1" min="0" max="10">
+            </div>
+            <div class="input-group">
+                <label for="trim3">Nota do 3º Trimestre</label>
+                <input type="number" id="trim3" placeholder="Digite a nota..." step="0.1" min="0" max="10">
+            </div>
+        </form>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // O JavaScript continua exatamente o mesmo. Nenhuma alteração é necessária aqui.
+        document.addEventListener('DOMContentLoaded', () => {
+            const resultsDiv = document.getElementById('results');
+            const trim1Input = document.getElementById('trim1');
+            const trim2Input = document.getElementById('trim2');
+            const trim3Input = document.getElementById('trim3');
+            const PASSING_AVERAGE = 6.0;
+
+            function handleCalculation() {
+                const n1 = parseFloat(trim1Input.value);
+                const n2 = parseFloat(trim2Input.value);
+                const n3 = parseFloat(trim3Input.value);
+
+                if (!isNaN(n1) && !isNaN(n2) && isNaN(n3)) {
+                    calculateNeededGrade(n1, n2);
+                } else if (!isNaN(n1) && !isNaN(n2) && !isNaN(n3)) {
+                    calculateFinalResult(n1, n2, n3);
+                } else {
+                    clearResults();
+                }
+            }
+            
+            function showResults(className, innerHTML) {
+                resultsDiv.className = `${className} visible`;
+                resultsDiv.innerHTML = innerHTML;
+            }
+
+            function calculateNeededGrade(n1, n2) {
+                const totalPointsNeeded = PASSING_AVERAGE * 10; 
+                const pointsSoFar = (n1 * 3) + (n2 * 3);
+                const neededPoints = totalPointsNeeded - pointsSoFar;
+                const neededGrade = neededPoints / 4;
+                let message;
+
+                if (neededGrade > 10) {
+                     message = `⚠️ Impossível passar. Você precisaria tirar <strong>${neededGrade.toFixed(2)}</strong> no 3º trimestre.`;
+                } else if (neededGrade <= 0) {
+                    message = `🎉 Parabéns! Você já atingiu a pontuação para passar.`;
+                } else {
+                    message = `Para atingir a média <strong>${PASSING_AVERAGE.toFixed(1)}</strong>, você precisa tirar no mínimo <strong>${neededGrade.toFixed(2)}</strong>.`;
+                }
+                showResults('info', message);
+            }
+
+            function calculateFinalResult(n1, n2, n3) {
+                const finalAverage = ((n1 * 3) + (n2 * 3) + (n3 * 4)) / 10;
+                let message;
+                let className;
+
+                if (finalAverage >= PASSING_AVERAGE) {
+                    className = 'success';
+                    message = `Sua média final é <strong>${finalAverage.toFixed(2)}</strong>. <br> Parabéns, você foi aprovado!`;
+                } else {
+                    const missingPoints = PASSING_AVERAGE - finalAverage;
+                    className = 'error';
+                    message = `Sua média final é <strong>${finalAverage.toFixed(2)}</strong>. <br> Você foi reprovado. Faltaram <strong>${missingPoints.toFixed(2)}</strong> pontos.`;
+                }
+                showResults(className, message);
+            }
+            
+            function clearResults() {
+                resultsDiv.className = '';
+                resultsDiv.innerHTML = '';
+            }
+
+            trim1Input.addEventListener('input', handleCalculation);
+            trim2Input.addEventListener('input', handleCalculation);
+            trim3Input.addEventListener('input', handleCalculation);
+        });
+    </script>
+</body>
+</html>
